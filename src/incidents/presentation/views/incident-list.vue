@@ -11,6 +11,7 @@ import { formatDateTime } from '../../../shared/presentation/date-format.js';
 import ReportIncidentDialog from '../components/report-incident-dialog.vue';
 import AdvanceIncidentDialog from '../components/advance-incident-dialog.vue';
 import AttachEvidenceDialog from '../components/attach-evidence-dialog.vue';
+import { isComingSoon, notifyComingSoon } from '../../../shared/presentation/coming-soon.js';
 
 const STATUS_TONES = { reported: 'danger', under_review: 'warning', resolved: 'success', closed: 'neutral' };
 const SEVERITY_TONES = { low: 'neutral', medium: 'info', high: 'warning', critical: 'danger' };
@@ -34,6 +35,10 @@ const filteredIncidents = computed(() => store.incidents.filter(incident =>
     (!statusFilter.value || incident.status === statusFilter.value) && (!typeFilter.value || incident.type === typeFilter.value)));
 
 function notify(error, successKey, params = {}) {
+    if (isComingSoon(error)) {
+        notifyComingSoon(toast, t);
+        return;
+    }
     toast.add({ severity: error ? 'error' : 'success', summary: t(error ? 'shared.form.failure' : successKey, params), life: 4000 });
 }
 
@@ -51,7 +56,7 @@ function openAdvanceDialog(incident) {
 async function advanceIncident(resolution) {
     const command = new AdvanceIncidentCommand({ incident: selectedIncident.value, resolution });
     const error = await store.advanceIncident(command);
-    if (!error) isAdvanceVisible.value = false;
+    if (!error || isComingSoon(error)) isAdvanceVisible.value = false;
     notify(error, 'incidents.advance.success', { code: command.incident.code, status: t(`incidents.statuses.${command.nextStatus}`) });
 }
 
