@@ -31,15 +31,12 @@ export class UserAssembler {
 
     static toResourceFromRegisterCommand(command) {
         return {
-            id: crypto.randomUUID(),
             organizationId: command.organizationId,
             firstName: command.firstName,
             lastName: command.lastName,
             email: command.email,
             password: command.password,
-            role: command.role,
-            status: 'active',
-            createdAt: new Date().toISOString()
+            role: command.role
         };
     }
 
