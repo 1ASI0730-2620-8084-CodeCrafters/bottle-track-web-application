@@ -33,23 +33,22 @@ const useFleetStore = defineStore('fleet', () => {
         vehiclesLoaded.value = true;
     }
 
-    async function isPlateNumberTaken(vehicle) {
-        const response = await fleetApi.getVehiclesByPlateNumber(vehicle.plateNumber.trim().toUpperCase());
-        return response.data.some(resource => resource.id !== vehicle.id);
-    }
-
     function saveVehicle(vehicle) {
         return runSaving(async () => {
-            if (await isPlateNumberTaken(vehicle)) return 'plate-number-taken';
             const resource = VehicleAssembler.toResourceFromEntity(vehicle);
-            if (vehicle.id) {
-                const response = await fleetApi.updateVehicle(vehicle.id, resource);
-                vehicles.value = replaceById(vehicles.value, VehicleAssembler.toEntityFromResource(response.data));
-            } else {
-                const response = await fleetApi.createVehicle({ id: crypto.randomUUID(), ...resource });
-                vehicles.value = [...vehicles.value, VehicleAssembler.toEntityFromResource(response.data)];
+            try {
+                if (vehicle.id) {
+                    const response = await fleetApi.updateVehicle(vehicle.id, resource);
+                    vehicles.value = replaceById(vehicles.value, VehicleAssembler.toEntityFromResource(response.data));
+                } else {
+                    const response = await fleetApi.createVehicle(resource);
+                    vehicles.value = vehicles.value.concat([VehicleAssembler.toEntityFromResource(response.data)]);
+                }
+                return null;
+            } catch (error) {
+                if (error.response && error.response.status === 409) return 'plate-number-taken';
+                return 'request-failed';
             }
-            return null;
         });
     }
 
@@ -59,28 +58,22 @@ const useFleetStore = defineStore('fleet', () => {
         driversLoaded.value = true;
     }
 
-    async function findDuplicatedDriverField(driver) {
-        const resource = DriverAssembler.toResourceFromEntity(driver);
-        for (const field of ['documentNumber', 'licenseNumber']) {
-            const response = await fleetApi.getDriversByField(field, resource[field]);
-            if (response.data.some(existing => existing.id !== driver.id)) return `${field}-taken`;
-        }
-        return null;
-    }
-
     function saveDriver(driver) {
         return runSaving(async () => {
-            const duplicatedField = await findDuplicatedDriverField(driver);
-            if (duplicatedField) return duplicatedField;
             const resource = DriverAssembler.toResourceFromEntity(driver);
-            if (driver.id) {
-                const response = await fleetApi.updateDriver(driver.id, resource);
-                drivers.value = replaceById(drivers.value, DriverAssembler.toEntityFromResource(response.data));
-            } else {
-                const response = await fleetApi.createDriver({ id: crypto.randomUUID(), ...resource });
-                drivers.value = [...drivers.value, DriverAssembler.toEntityFromResource(response.data)];
+            try {
+                if (driver.id) {
+                    const response = await fleetApi.updateDriver(driver.id, resource);
+                    drivers.value = replaceById(drivers.value, DriverAssembler.toEntityFromResource(response.data));
+                } else {
+                    const response = await fleetApi.createDriver(resource);
+                    drivers.value = drivers.value.concat([DriverAssembler.toEntityFromResource(response.data)]);
+                }
+                return null;
+            } catch (error) {
+                if (error.response && error.response.status === 409) return 'documentNumber-taken';
+                return 'request-failed';
             }
-            return null;
         });
     }
 
