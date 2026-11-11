@@ -49,7 +49,8 @@ onMounted(loadDeliveryOrders);
             <h1 id="delivery-order-tracking-title" class="page__title">{{ t('operations.tracking.title') }}</h1>
             <p class="page__lead">{{ t('operations.tracking.lead') }}</p>
         </div>
-        <pv-message v-if="store.loadError" severity="error" role="alert">
+        <pv-message v-if="store.isTrackingComingSoon" severity="info" role="status">{{ t('shared.coming-soon.tracking') }}</pv-message>
+        <pv-message v-else-if="store.loadError" severity="error" role="alert">
             <div class="delivery-order-tracking__error">
                 <span>{{ t('operations.tracking.load-error') }}</span>
                 <pv-button :label="t('operations.tracking.retry')" size="small" text @click="loadDeliveryOrders"/>
