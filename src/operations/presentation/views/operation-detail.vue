@@ -11,6 +11,7 @@ import OperationProgress from '../components/operation-progress.vue';
 import OperationRoute from '../components/operation-route.vue';
 import CancelOperationDialog from '../components/cancel-operation-dialog.vue';
 import { OPERATION_STATUS_TONES } from '../status-tones.js';
+import { isComingSoon, notifyComingSoon } from '../../../shared/presentation/coming-soon.js';
 
 const { t, locale } = useI18n();
 const route = useRoute();
@@ -21,6 +22,10 @@ const loadFailed = ref(false);
 const isCancelVisible = ref(false);
 
 function notifyResult(error, successKey) {
+    if (isComingSoon(error)) {
+        notifyComingSoon(toast, t);
+        return;
+    }
     if (!error && !successKey) return;
     toast.add({
         severity: error ? 'error' : 'success',
@@ -37,7 +42,7 @@ async function run(action, successKey) {
 
 async function cancelOperation(reason) {
     const error = await run(() => store.cancelOperation(store.currentOperation, reason), 'operations.cancel.success');
-    if (!error) isCancelVisible.value = false;
+    if (!error || isComingSoon(error)) isCancelVisible.value = false;
 }
 
 onMounted(() => store.fetchOperation(route.params.id).catch(() => {
