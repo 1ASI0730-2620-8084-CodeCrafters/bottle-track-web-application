@@ -71,11 +71,6 @@ const useIamStore = defineStore('iam', () => {
         localStorage.removeItem(SESSION_STORAGE_KEY);
     }
 
-    async function isEmailTaken(email, exceptUserId = null) {
-        const response = await iamApi.getUsersByEmail(email);
-        return response.data.some(resource => resource.id !== exceptUserId);
-    }
-
     function replaceUser(updatedUser) {
         users.value = users.value.map(user => (user.id === updatedUser.id ? updatedUser : user));
         if (currentUser.value?.id === updatedUser.id) startSession(updatedUser, currentToken.value);
@@ -100,25 +95,33 @@ const useIamStore = defineStore('iam', () => {
 
     function registerUser(command) {
         return runSaving(async () => {
-            if (await isEmailTaken(command.email)) return 'email-taken';
-            const response = await iamApi.createUser(UserAssembler.toResourceFromRegisterCommand(command));
-            users.value = [...users.value, UserAssembler.toEntityFromResource(response.data)];
-            return null;
+            try {
+                const response = await iamApi.createUser(UserAssembler.toResourceFromRegisterCommand(command));
+                users.value = users.value.concat([UserAssembler.toEntityFromResource(response.data)]);
+                return null;
+            } catch (error) {
+                if (error.response && error.response.status === 409) return 'email-taken';
+                return 'request-failed';
+            }
         });
     }
 
     function updateUser(command) {
         return runSaving(async () => {
-            if (await isEmailTaken(command.email, command.userId)) return 'email-taken';
-            const response = await iamApi.updateUser(command.userId, UserAssembler.toResourceFromUpdateCommand(command));
-            replaceUser(UserAssembler.toEntityFromResource(response.data));
-            return null;
+            try {
+                const response = await iamApi.updateUser(command.userId, UserAssembler.toResourceFromUpdateCommand(command));
+                replaceUser(UserAssembler.toEntityFromResource(response.data));
+                return null;
+            } catch (error) {
+                if (error.response && error.response.status === 409) return 'email-taken';
+                return 'request-failed';
+            }
         });
     }
 
     function assignRole(command) {
         return runSaving(async () => {
-            const response = await iamApi.updateUser(command.userId, { role: command.role });
+            const response = await iamApi.assignRole(command.userId, command.role);
             replaceUser(UserAssembler.toEntityFromResource(response.data));
             return null;
         });

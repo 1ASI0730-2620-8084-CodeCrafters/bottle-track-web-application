@@ -15,15 +15,11 @@ export class IamApi extends BaseApi {
     }
 
     signIn(signInCommand) {
-        return this.#usersEndpoint.getAll({ email: signInCommand.email, password: signInCommand.password });
+        return this.http.post('/authentication/sign-in', { email: signInCommand.email, password: signInCommand.password });
     }
 
     getUsersByOrganization(organizationId) {
         return this.#usersEndpoint.getAll({ organizationId });
-    }
-
-    getUsersByEmail(email) {
-        return this.#usersEndpoint.getAll({ email });
     }
 
     createUser(userResource) {
@@ -31,7 +27,11 @@ export class IamApi extends BaseApi {
     }
 
     updateUser(userId, userResource) {
-        return this.#usersEndpoint.partialUpdate(userId, userResource);
+        return this.#usersEndpoint.update(userId, userResource);
+    }
+
+    assignRole(userId, role) {
+        return this.http.put(`${usersEndpointPath}/${userId}/role`, { role });
     }
 
     getOrganizationById(organizationId) {
@@ -39,6 +39,6 @@ export class IamApi extends BaseApi {
     }
 
     updateOrganization(organizationId, organizationResource) {
-        return this.#organizationsEndpoint.partialUpdate(organizationId, organizationResource);
+        return this.#organizationsEndpoint.update(organizationId, organizationResource);
     }
 }

@@ -8,7 +8,7 @@ import BrandLogo from '../../../shared/presentation/components/brand-logo.vue';
 import LanguageSwitcher from '../../../shared/presentation/components/language-switcher.vue';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const TERMS_OF_SERVICE_URL = 'https://1asi0730-2620-8084-codecrafters.github.io/Landing-Page/terms-of-service.html';
+const TERMS_OF_SERVICE_URL = 'https://1asi0730-2620-8084-codecrafters.netlify.app/terms-of-service.html';
 
 const { t } = useI18n();
 const route = useRoute();
