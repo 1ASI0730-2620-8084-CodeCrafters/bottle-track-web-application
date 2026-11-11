@@ -304,6 +304,12 @@
             "cancel": "Cancelar",
             "required": "Este campo es obligatorio.",
             "failure": "No pudimos guardar los cambios. Inténtalo de nuevo."
+        },
+        "coming-soon": {
+            "title": "Próximamente",
+            "detail": "Esta función estará disponible en la siguiente versión de BottleTrack.",
+            "monitoring": "Próximamente: el monitoreo en vivo de las operaciones, con sus lecturas y alertas, estará disponible en la siguiente versión de BottleTrack.",
+            "tracking": "Próximamente: el seguimiento de tus pedidos y el reporte de problemas de recepción estarán disponibles en la siguiente versión de BottleTrack."
         }
     },
     "fleet": {

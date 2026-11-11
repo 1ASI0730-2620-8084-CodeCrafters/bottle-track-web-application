@@ -304,6 +304,12 @@
             "cancel": "Cancel",
             "required": "This field is required.",
             "failure": "We could not save the changes. Try again."
+        },
+        "coming-soon": {
+            "title": "Coming soon",
+            "detail": "This feature will be available in the next release of BottleTrack.",
+            "monitoring": "Coming soon: live monitoring of your operations, with their readings and alerts, will be available in the next release of BottleTrack.",
+            "tracking": "Coming soon: tracking your orders and reporting reception problems will be available in the next release of BottleTrack."
         }
     },
     "fleet": {
