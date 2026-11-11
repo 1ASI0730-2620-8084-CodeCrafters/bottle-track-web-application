@@ -6,6 +6,7 @@ import useMonitoringStore from '../../application/monitoring.store.js';
 import useIamStore from '../../../iam/application/iam.store.js';
 import StatusBadge from '../../../shared/presentation/components/status-badge.vue';
 import SafeRangeDialog from '../components/safe-range-dialog.vue';
+import { isComingSoon, notifyComingSoon } from '../../../shared/presentation/coming-soon.js';
 
 const STATUS_TONES = { active: 'success', offline: 'warning', retired: 'neutral' };
 
@@ -25,6 +26,11 @@ function openDialog(device) {
 
 async function saveRange(range) {
     const error = await store.updateSafeRange(selectedDevice.value, range);
+    if (isComingSoon(error)) {
+        isDialogVisible.value = false;
+        notifyComingSoon(toast, t);
+        return;
+    }
     if (!error) isDialogVisible.value = false;
     toast.add({
         severity: error ? 'error' : 'success',

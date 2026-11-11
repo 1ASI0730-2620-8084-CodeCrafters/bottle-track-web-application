@@ -65,7 +65,8 @@ onMounted(loadMonitoring);
             </div>
             <pv-button :label="t('monitoring.refresh')" icon="pi pi-refresh" severity="secondary" outlined @click="loadMonitoring"/>
         </div>
-        <pv-message v-if="loadFailed" severity="error" role="alert">{{ t('shared.load-error') }}</pv-message>
+        <pv-message v-if="store.isDashboardComingSoon" severity="info" role="status">{{ t('shared.coming-soon.monitoring') }}</pv-message>
+        <pv-message v-else-if="loadFailed" severity="error" role="alert">{{ t('shared.load-error') }}</pv-message>
         <p v-else-if="!store.monitoringLoaded" class="page__lead" role="status">{{ t('monitoring.loading') }}</p>
         <template v-else>
             <alert-list :alerts="store.pendingAlerts" @acknowledge="acknowledgeAlert" @report-incident="reportIncident"/>
