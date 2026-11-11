@@ -5,6 +5,19 @@ import { IncidentAssembler, EvidenceAssembler } from '../infrastructure/incident
 
 const incidentsApi = new IncidentsApi();
 
+function stopsOf(operationResources) {
+    const stops = [];
+    operationResources.forEach(operation => {
+        const deliveryStops = operation.deliveryStops || [];
+        deliveryStops.forEach(stop => {
+            const operationStop = Object.assign({}, stop);
+            operationStop.transportOperationId = operation.id;
+            stops.push(operationStop);
+        });
+    });
+    return stops;
+}
+
 const useIncidentsStore = defineStore('incidents', () => {
     const incidents = ref([]);
     const operations = ref([]);
@@ -20,17 +33,16 @@ const useIncidentsStore = defineStore('incidents', () => {
     async function fetchIncidents(organizationId) {
         const { data: operationResources } = await incidentsApi.getOperations(organizationId);
         operations.value = operationResources;
-        const operationIds = operationResources.map(operation => operation.id);
-        if (operationIds.length === 0) {
+        stops.value = stopsOf(operationResources);
+        if (operationResources.length === 0) {
             incidents.value = [];
-            stops.value = [];
         } else {
-            const [incidentsResponse, stopsResponse] = await Promise.all([
-                incidentsApi.getIncidentsByOperations(operationIds),
-                incidentsApi.getStopsByOperations(operationIds)
-            ]);
-            incidents.value = IncidentAssembler.toEntitiesFromResources(incidentsResponse.data, operationResources);
-            stops.value = stopsResponse.data;
+            const responses = await Promise.all(
+                operationResources.map(operation => incidentsApi.getIncidentsByOperation(operation.id)));
+            const resources = responses
+                .flatMap(response => response.data)
+                .sort((first, second) => String(second.reportedAt).localeCompare(String(first.reportedAt)));
+            incidents.value = IncidentAssembler.toEntitiesFromResources(resources, operationResources);
         }
         incidentsLoaded.value = true;
     }
@@ -59,17 +71,20 @@ const useIncidentsStore = defineStore('incidents', () => {
     async function fetchEvidences(incidentId) {
         evidences.value = [];
         evidencesLoaded.value = false;
-        const { data } = await incidentsApi.getEvidencesByIncident(incidentId);
-        evidences.value = EvidenceAssembler.toEntitiesFromResources(data);
+        const { data } = await incidentsApi.getIncidentById(incidentId);
+        evidences.value = EvidenceAssembler.toEntitiesFromResources(data.evidences || []);
         evidencesLoaded.value = true;
     }
 
     function attachEvidence(command) {
         return runSaving(async () => {
             if (!command.isValid) return 'invalid-evidence';
-            const resource = EvidenceAssembler.toResourceFromCommand(command);
-            const { data } = await incidentsApi.createEvidence(resource);
-            evidences.value = [...evidences.value, EvidenceAssembler.toEntityFromResource(data)];
+            const { data } = await incidentsApi.addEvidence(command.incidentId, {
+                fileUrl: command.fileUrl,
+                fileType: 'image',
+                uploadedBy: command.uploadedBy
+            });
+            evidences.value = EvidenceAssembler.toEntitiesFromResources(data.evidences || []);
             return null;
         });
     }
@@ -77,7 +92,8 @@ const useIncidentsStore = defineStore('incidents', () => {
     function advanceIncident(command) {
         return runSaving(async () => {
             if (!command.isValid) return 'invalid-transition';
-            const { data } = await incidentsApi.updateIncident(command.incident.id, IncidentAssembler.toChangesFromAdvanceCommand(command));
+            if (command.nextStatus !== 'resolved') return 'coming-soon';
+            const { data } = await incidentsApi.resolveIncident(command.incident.id, command.resolution);
             const updated = IncidentAssembler.toEntityFromResource(data, operations.value);
             incidents.value = incidents.value.map(incident => (incident.id === updated.id ? updated : incident));
             return null;
