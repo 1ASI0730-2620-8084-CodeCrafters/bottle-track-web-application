@@ -18,24 +18,16 @@ export class FleetApi extends BaseApi {
         return this.#vehiclesEndpoint.getAll({ organizationId });
     }
 
-    getVehiclesByPlateNumber(plateNumber) {
-        return this.#vehiclesEndpoint.getAll({ plateNumber });
-    }
-
     createVehicle(vehicleResource) {
         return this.#vehiclesEndpoint.create(vehicleResource);
     }
 
     updateVehicle(vehicleId, vehicleResource) {
-        return this.#vehiclesEndpoint.partialUpdate(vehicleId, vehicleResource);
+        return this.#vehiclesEndpoint.update(vehicleId, vehicleResource);
     }
 
     getDrivers(organizationId) {
         return this.#driversEndpoint.getAll({ organizationId });
-    }
-
-    getDriversByField(field, value) {
-        return this.#driversEndpoint.getAll({ [field]: value });
     }
 
     createDriver(driverResource) {
@@ -43,6 +35,6 @@ export class FleetApi extends BaseApi {
     }
 
     updateDriver(driverId, driverResource) {
-        return this.#driversEndpoint.partialUpdate(driverId, driverResource);
+        return this.#driversEndpoint.update(driverId, driverResource);
     }
 }
