@@ -2,14 +2,12 @@
 import { computed, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import useIncidentsStore from '../../application/incidents.store.js';
-import useIamStore from '../../../iam/application/iam.store.js';
 import { toIsoDate } from '../../../shared/presentation/date-format.js';
 
 const REGISTERED_DELIVERY_STATUSES = ['delivered', 'partially_delivered', 'not_delivered'];
 
 const { t } = useI18n();
 const store = useIncidentsStore();
-const iamStore = useIamStore();
 
 const loadFailed = ref(false);
 const currentMonth = toIsoDate(new Date()).slice(0, 7);
@@ -37,7 +35,7 @@ const operationsInProgress = computed(() => store.operations.filter(operation =>
     return { ...operation, registered: stops.filter(stop => stop.status !== 'pending').length, total: stops.length };
 }));
 
-onMounted(() => store.fetchIncidents(iamStore.currentUser.organizationId).catch(() => {
+onMounted(() => store.fetchIncidents(store.organizationId).catch(() => {
     loadFailed.value = true;
 }));
 </script>

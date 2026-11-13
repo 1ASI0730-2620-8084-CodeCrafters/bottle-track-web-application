@@ -3,7 +3,6 @@ import { computed, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useToast } from 'primevue/usetoast';
 import useIncidentsStore from '../../application/incidents.store.js';
-import useIamStore from '../../../iam/application/iam.store.js';
 import { AdvanceIncidentCommand, INCIDENT_STATUSES, INCIDENT_TYPES, ReportIncidentCommand } from '../../domain/model/incident.entity.js';
 import { AttachEvidenceCommand } from '../../domain/model/evidence.entity.js';
 import StatusBadge from '../../../shared/presentation/components/status-badge.vue';
@@ -19,7 +18,6 @@ const SEVERITY_TONES = { low: 'neutral', medium: 'info', high: 'warning', critic
 const { t, locale } = useI18n();
 const toast = useToast();
 const store = useIncidentsStore();
-const iamStore = useIamStore();
 
 const loadFailed = ref(false);
 const isReportVisible = ref(false);
@@ -43,7 +41,7 @@ function notify(error, successKey, params = {}) {
 }
 
 async function reportIncident(formValues) {
-    const error = await store.reportIncident(new ReportIncidentCommand({ ...formValues, reportedBy: iamStore.currentUser.id }));
+    const error = await store.reportIncident(new ReportIncidentCommand({ ...formValues, reportedBy: store.userId }));
     if (!error) isReportVisible.value = false;
     notify(error, 'incidents.form.success');
 }
@@ -70,14 +68,14 @@ async function attachEvidence(fileUrl) {
     const command = new AttachEvidenceCommand({
         incidentId: selectedIncident.value.id,
         fileUrl,
-        uploadedBy: iamStore.currentUser.id
+        uploadedBy: store.userId
     });
     const error = await store.attachEvidence(command);
     if (!error) isEvidenceVisible.value = false;
     notify(error, 'incidents.evidence.success');
 }
 
-onMounted(() => store.fetchIncidents(iamStore.currentUser.organizationId).catch(() => {
+onMounted(() => store.fetchIncidents(store.organizationId).catch(() => {
     loadFailed.value = true;
 }));
 </script>
