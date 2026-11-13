@@ -15,6 +15,8 @@ const iamStore = useIamStore();
 const isDrawerVisible = ref(false);
 
 const visibleItems = computed(() => NAVIGATION_ITEMS.filter(item => router.hasRoute(item.routeName) && iamStore.canAccess(item.roles)));
+
+const WEBSITE_URL = 'https://1asi0730-2620-8084-codecrafters.netlify.app/';
 </script>
 
 <template>
@@ -41,6 +43,10 @@ const visibleItems = computed(() => NAVIGATION_ITEMS.filter(item => router.hasRo
             <main id="main-content" class="app-shell__main" tabindex="-1">
                 <router-view/>
             </main>
+            <footer class="app-shell__footer">
+                <span>&copy; BottleTrack &middot; CodeCrafters</span>
+                <a :href="WEBSITE_URL" target="_blank" rel="noopener noreferrer">{{ t('shared.footer.website') }}</a>
+            </footer>
         </div>
     </div>
     <pv-drawer v-model:visible="isDrawerVisible" class="app-shell__drawer">
@@ -130,5 +136,20 @@ const visibleItems = computed(() => NAVIGATION_ITEMS.filter(item => router.hasRo
     .app-shell__topbar {
         padding: 0 var(--space-4);
     }
+}
+
+.app-shell__footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-2);
+    padding: var(--space-4) var(--space-6);
+    border-top: 1px solid var(--border, #e5e0db);
+    color: var(--ink-60);
+    font-size: var(--text-xs);
+}
+
+.app-shell__footer a {
+    color: var(--primary-mid);
 }
 </style>
