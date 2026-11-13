@@ -3,7 +3,6 @@ import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import useTransportOperationsStore from '../../application/transport-operations.store.js';
-import useIamStore from '../../../iam/application/iam.store.js';
 import { OPERATION_STATUSES } from '../../domain/model/delivery-status.js';
 import StatusBadge from '../../../shared/presentation/components/status-badge.vue';
 import { formatDate, formatDateTime, toIsoDate } from '../../../shared/presentation/date-format.js';
@@ -12,7 +11,6 @@ import { OPERATION_STATUS_TONES } from '../status-tones.js';
 const { t, locale } = useI18n();
 const router = useRouter();
 const store = useTransportOperationsStore();
-const iamStore = useIamStore();
 
 const loadFailed = ref(false);
 const dateRange = ref(null);
@@ -31,7 +29,7 @@ function openOperation({ data }) {
     router.push({ name: 'operation-detail', params: { id: data.id } });
 }
 
-onMounted(() => store.fetchOperations(iamStore.currentUser.organizationId).catch(() => {
+onMounted(() => store.fetchOperations(store.organizationId).catch(() => {
     loadFailed.value = true;
 }));
 </script>
