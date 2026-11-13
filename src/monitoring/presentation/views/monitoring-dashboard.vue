@@ -3,26 +3,24 @@ import { onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useToast } from 'primevue/usetoast';
 import useMonitoringStore from '../../application/monitoring.store.js';
-import useIamStore from '../../../iam/application/iam.store.js';
 import MonitoredOperationCard from '../components/monitored-operation-card.vue';
 import AlertList from '../components/alert-list.vue';
 
 const { t } = useI18n();
 const toast = useToast();
 const store = useMonitoringStore();
-const iamStore = useIamStore();
 
 const loadFailed = ref(false);
 
 function loadMonitoring() {
     loadFailed.value = false;
-    store.fetchMonitoring(iamStore.currentUser.organizationId).catch(() => {
+    store.fetchMonitoring(store.organizationId).catch(() => {
         loadFailed.value = true;
     });
 }
 
 async function simulateReading(monitoredOperation) {
-    const { alertTypes, error } = await store.simulateReading(monitoredOperation, iamStore.currentUser.organizationId);
+    const { alertTypes, error } = await store.simulateReading(monitoredOperation, store.organizationId);
     if (error) {
         toast.add({ severity: 'error', summary: t('shared.form.failure'), life: 4000 });
         return;
@@ -40,7 +38,7 @@ async function simulateReading(monitoredOperation) {
 }
 
 async function acknowledgeAlert(alert) {
-    const error = await store.acknowledgeAlert(alert, iamStore.currentUser.id);
+    const error = await store.acknowledgeAlert(alert, store.userId);
     toast.add({ severity: error ? 'error' : 'success', summary: t(error ? 'shared.form.failure' : 'monitoring.alerts.acknowledged'), life: 3000 });
 }
 
@@ -49,7 +47,7 @@ async function reportIncident(alert) {
         type: t(`monitoring.alert-types.${alert.type}`),
         code: alert.operationCode
     });
-    const error = await store.reportIncidentFromAlert(alert, { reportedBy: iamStore.currentUser.id, description });
+    const error = await store.reportIncidentFromAlert(alert, { reportedBy: store.userId, description });
     toast.add({ severity: error ? 'error' : 'success', summary: t(error ? 'shared.form.failure' : 'monitoring.alerts.incident-reported'), life: 4000 });
 }
 
