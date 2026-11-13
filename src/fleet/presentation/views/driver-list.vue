@@ -1,9 +1,8 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useToast } from 'primevue/usetoast';
 import useFleetStore from '../../application/fleet.store.js';
-import useIamStore from '../../../iam/application/iam.store.js';
 import StatusBadge from '../../../shared/presentation/components/status-badge.vue';
 import DriverFormDialog from '../components/driver-form-dialog.vue';
 
@@ -13,17 +12,11 @@ const DUPLICATED_FIELD_ERRORS = ['documentNumber-taken', 'licenseNumber-taken'];
 const { t } = useI18n();
 const toast = useToast();
 const store = useFleetStore();
-const iamStore = useIamStore();
 
 const loadFailed = ref(false);
 const isDialogVisible = ref(false);
 const selectedDriver = ref(null);
 const formError = ref(null);
-const showOnlyAvailable = ref(false);
-
-const visibleDrivers = computed(() => (showOnlyAvailable.value
-    ? store.drivers.filter(item => item.isAvailable)
-    : store.drivers));
 
 function openDialog(driver = null) {
     selectedDriver.value = driver;
@@ -43,7 +36,7 @@ async function saveDriver(driver) {
     });
 }
 
-onMounted(() => store.fetchDrivers(iamStore.currentUser.organizationId).catch(() => {
+onMounted(() => store.fetchDrivers(store.organizationId).catch(() => {
     loadFailed.value = true;
 }));
 </script>
@@ -58,13 +51,13 @@ onMounted(() => store.fetchDrivers(iamStore.currentUser.organizationId).catch(()
             <pv-button :label="t('fleet.drivers.new')" icon="pi pi-plus" @click="openDialog()"/>
         </div>
         <div class="fleet-filter">
-            <pv-checkbox v-model="showOnlyAvailable" input-id="drivers-only-available" binary/>
+            <pv-checkbox v-model="store.showOnlyAvailableDrivers" input-id="drivers-only-available" binary/>
             <label for="drivers-only-available">{{ t('fleet.only-available') }}</label>
         </div>
         <pv-message v-if="loadFailed" severity="error" role="alert">{{ t('shared.load-error') }}</pv-message>
         <div v-else class="panel panel--table">
-            <pv-data-table :value="visibleDrivers" :loading="!store.driversLoaded" data-key="id" sort-field="lastName" :sort-order="1" scrollable>
-                <template #empty>{{ t(showOnlyAvailable ? 'fleet.drivers.none-available' : 'fleet.drivers.empty') }}</template>
+            <pv-data-table :value="store.visibleDrivers" :loading="!store.driversLoaded" data-key="id" sort-field="lastName" :sort-order="1" scrollable>
+                <template #empty>{{ t(store.showOnlyAvailableDrivers ? 'fleet.drivers.none-available' : 'fleet.drivers.empty') }}</template>
                 <pv-column field="lastName" :header="t('fleet.drivers.name')" sortable>
                     <template #body="{ data }">{{ data.fullName }}</template>
                 </pv-column>
@@ -86,7 +79,7 @@ onMounted(() => store.fetchDrivers(iamStore.currentUser.organizationId).catch(()
         <driver-form-dialog
             v-model:visible="isDialogVisible"
             :driver="selectedDriver"
-            :organization-id="iamStore.currentUser?.organizationId"
+            :organization-id="store.organizationId"
             :is-saving="store.isSaving"
             :server-error="formError"
             @submit="saveDriver"/>
