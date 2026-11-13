@@ -35,6 +35,6 @@ export class IncidentsApi extends BaseApi {
     }
 
     resolveIncident(incidentId, resolution) {
-        return this.http.put(`${incidentsEndpointPath}/${incidentId}/resolution`, { resolution });
+        return this.http.post(`${incidentsEndpointPath}/${incidentId}/resolutions`, { resolution });
     }
 }
