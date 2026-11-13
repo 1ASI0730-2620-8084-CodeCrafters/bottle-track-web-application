@@ -1,7 +1,10 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
+import { currentOrganizationId, currentUserId } from '../../iam/application/iam.facade.js';
 
 const useOperationsStore = defineStore('operations', () => {
+    const organizationId = computed(() => currentOrganizationId());
+    const userId = computed(() => currentUserId());
     const deliveryOrders = ref([]);
     const isLoading = ref(false);
     const loadError = ref(false);
@@ -22,6 +25,8 @@ const useOperationsStore = defineStore('operations', () => {
     }
 
     return {
+        organizationId,
+        userId,
         deliveryOrders,
         activeDeliveryOrders,
         registeredDeliveryOrders,

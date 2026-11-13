@@ -4,7 +4,6 @@ import { useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useToast } from 'primevue/usetoast';
 import useTransportOperationsStore from '../../application/transport-operations.store.js';
-import useIamStore from '../../../iam/application/iam.store.js';
 import { CreateOperationCommand } from '../../domain/model/operation-commands.js';
 import { OPERATION_STATUSES } from '../../domain/model/delivery-status.js';
 import StatusBadge from '../../../shared/presentation/components/status-badge.vue';
@@ -19,7 +18,6 @@ const { t, locale } = useI18n();
 const router = useRouter();
 const toast = useToast();
 const store = useTransportOperationsStore();
-const iamStore = useIamStore();
 
 const loadFailed = ref(false);
 const isDialogVisible = ref(false);
@@ -35,7 +33,7 @@ function openOperation(operation) {
 }
 
 async function createOperation(formValues) {
-    const command = new CreateOperationCommand({ organizationId: iamStore.currentUser.organizationId, ...formValues });
+    const command = new CreateOperationCommand({ organizationId: store.organizationId, ...formValues });
     const { operationId, error } = await store.createOperation(command);
     if (error) {
         toast.add({ severity: 'error', summary: t('shared.form.failure'), life: 4000 });
@@ -45,7 +43,7 @@ async function createOperation(formValues) {
     router.push({ name: 'operation-detail', params: { id: operationId } });
 }
 
-onMounted(() => store.fetchOperations(iamStore.currentUser.organizationId).catch(() => {
+onMounted(() => store.fetchOperations(store.organizationId).catch(() => {
     loadFailed.value = true;
 }));
 </script>

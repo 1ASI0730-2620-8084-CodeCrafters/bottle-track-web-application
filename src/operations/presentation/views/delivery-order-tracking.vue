@@ -3,7 +3,6 @@ import { onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useToast } from 'primevue/usetoast';
 import useOperationsStore from '../../application/operations.store.js';
-import useIamStore from '../../../iam/application/iam.store.js';
 import { ReportReceptionProblemCommand } from '../../domain/model/report-reception-problem.command.js';
 import DeliveryOrderCard from '../components/delivery-order-card.vue';
 import ReceptionProblemDialog from '../components/reception-problem-dialog.vue';
@@ -11,13 +10,12 @@ import ReceptionProblemDialog from '../components/reception-problem-dialog.vue';
 const { t } = useI18n();
 const toast = useToast();
 const store = useOperationsStore();
-const iamStore = useIamStore();
 
 const selectedDeliveryOrder = ref(null);
 const isDialogVisible = ref(false);
 
 function loadDeliveryOrders() {
-    store.fetchDeliveryOrders(iamStore.currentUser.id);
+    store.fetchDeliveryOrders(store.userId);
 }
 
 function openReportDialog(deliveryOrder) {
@@ -28,7 +26,7 @@ function openReportDialog(deliveryOrder) {
 async function submitReport(formValues) {
     const command = new ReportReceptionProblemCommand({
         deliveryOrder: selectedDeliveryOrder.value,
-        reportedBy: iamStore.currentUser.id,
+        reportedBy: store.userId,
         ...formValues
     });
     const wasReported = await store.reportReceptionProblem(command);
