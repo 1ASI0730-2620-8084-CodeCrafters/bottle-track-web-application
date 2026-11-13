@@ -1,9 +1,8 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useToast } from 'primevue/usetoast';
 import useFleetStore from '../../application/fleet.store.js';
-import useIamStore from '../../../iam/application/iam.store.js';
 import StatusBadge from '../../../shared/presentation/components/status-badge.vue';
 import VehicleFormDialog from '../components/vehicle-form-dialog.vue';
 
@@ -12,17 +11,11 @@ const STATUS_TONES = { available: 'success', assigned: 'info', in_maintenance: '
 const { t } = useI18n();
 const toast = useToast();
 const store = useFleetStore();
-const iamStore = useIamStore();
 
 const loadFailed = ref(false);
 const isDialogVisible = ref(false);
 const selectedVehicle = ref(null);
 const formError = ref(null);
-const showOnlyAvailable = ref(false);
-
-const visibleVehicles = computed(() => (showOnlyAvailable.value
-    ? store.vehicles.filter(item => item.isAvailable)
-    : store.vehicles));
 
 function openDialog(vehicle = null) {
     selectedVehicle.value = vehicle;
@@ -42,7 +35,7 @@ async function saveVehicle(vehicle) {
     });
 }
 
-onMounted(() => store.fetchVehicles(iamStore.currentUser.organizationId).catch(() => {
+onMounted(() => store.fetchVehicles(store.organizationId).catch(() => {
     loadFailed.value = true;
 }));
 </script>
@@ -57,13 +50,13 @@ onMounted(() => store.fetchVehicles(iamStore.currentUser.organizationId).catch((
             <pv-button :label="t('fleet.vehicles.new')" icon="pi pi-plus" @click="openDialog()"/>
         </div>
         <div class="fleet-filter">
-            <pv-checkbox v-model="showOnlyAvailable" input-id="vehicles-only-available" binary/>
+            <pv-checkbox v-model="store.showOnlyAvailableVehicles" input-id="vehicles-only-available" binary/>
             <label for="vehicles-only-available">{{ t('fleet.only-available') }}</label>
         </div>
         <pv-message v-if="loadFailed" severity="error" role="alert">{{ t('shared.load-error') }}</pv-message>
         <div v-else class="panel panel--table">
-            <pv-data-table :value="visibleVehicles" :loading="!store.vehiclesLoaded" data-key="id" sort-field="plateNumber" :sort-order="1" scrollable>
-                <template #empty>{{ t(showOnlyAvailable ? 'fleet.vehicles.none-available' : 'fleet.vehicles.empty') }}</template>
+            <pv-data-table :value="store.visibleVehicles" :loading="!store.vehiclesLoaded" data-key="id" sort-field="plateNumber" :sort-order="1" scrollable>
+                <template #empty>{{ t(store.showOnlyAvailableVehicles ? 'fleet.vehicles.none-available' : 'fleet.vehicles.empty') }}</template>
                 <pv-column field="plateNumber" :header="t('fleet.vehicle-form.plateNumber')" sortable/>
                 <pv-column field="brand" :header="t('fleet.vehicles.vehicle')" sortable>
                     <template #body="{ data }">{{ data.description }}</template>
@@ -84,7 +77,7 @@ onMounted(() => store.fetchVehicles(iamStore.currentUser.organizationId).catch((
         <vehicle-form-dialog
             v-model:visible="isDialogVisible"
             :vehicle="selectedVehicle"
-            :organization-id="iamStore.currentUser?.organizationId"
+            :organization-id="store.organizationId"
             :is-saving="store.isSaving"
             :server-error="formError"
             @submit="saveVehicle"/>
