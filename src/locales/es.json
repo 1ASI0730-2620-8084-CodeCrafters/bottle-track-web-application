@@ -50,6 +50,40 @@
                 "invalid-credentials": "El correo o la contraseña son incorrectos.",
                 "inactive-user": "Tu cuenta está inactiva. Comunícate con el administrador de tu empresa.",
                 "service-unavailable": "No pudimos conectar con BottleTrack. Inténtalo de nuevo en unos minutos."
+            },
+            "no-account": "¿Tu empresa aún no usa BottleTrack?",
+            "create-account": "Crear una cuenta"
+        },
+        "sign-up": {
+            "title": "Crear una cuenta",
+            "lead": "Registra tu distribuidora y su administrador para empezar a usar BottleTrack.",
+            "plan": "Plan",
+            "plans": {
+                "free": "Gratis",
+                "premium": "Premium"
+            },
+            "company": "Datos de la empresa",
+            "business-name": "Razón social",
+            "tax-id": "RUC",
+            "phone": "Teléfono",
+            "company-email": "Correo de la empresa",
+            "address": "Dirección",
+            "administrator": "Administrador de la cuenta",
+            "first-name": "Nombres",
+            "last-name": "Apellidos",
+            "email": "Correo del administrador",
+            "password": "Contraseña",
+            "submit": "Crear cuenta",
+            "has-account": "¿Ya tienes una cuenta?",
+            "go-to-sign-in": "Iniciar sesión",
+            "required": "Este campo es obligatorio.",
+            "tax-id-invalid": "El RUC debe tener 11 dígitos.",
+            "email-invalid": "Ingresa un correo válido, como nombre{'@'}empresa.com.",
+            "password-short": "La contraseña debe tener al menos 8 caracteres.",
+            "errors": {
+                "tax-id-taken": "Ya existe una empresa registrada con ese RUC.",
+                "email-taken": "Ya existe un usuario con ese correo.",
+                "request-failed": "No pudimos crear la cuenta. Inténtalo de nuevo en unos minutos."
             }
         },
         "sign-out": "Cerrar sesión",

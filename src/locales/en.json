@@ -50,6 +50,40 @@
                 "invalid-credentials": "The email or password is incorrect.",
                 "inactive-user": "Your account is inactive. Contact the administrator of your company.",
                 "service-unavailable": "We could not reach BottleTrack. Try again in a few minutes."
+            },
+            "no-account": "Is your company not using BottleTrack yet?",
+            "create-account": "Create an account"
+        },
+        "sign-up": {
+            "title": "Create an account",
+            "lead": "Register your distribution company and its administrator to start using BottleTrack.",
+            "plan": "Plan",
+            "plans": {
+                "free": "Free",
+                "premium": "Premium"
+            },
+            "company": "Company details",
+            "business-name": "Business name",
+            "tax-id": "Tax ID (RUC)",
+            "phone": "Phone",
+            "company-email": "Company email",
+            "address": "Address",
+            "administrator": "Account administrator",
+            "first-name": "First name",
+            "last-name": "Last name",
+            "email": "Administrator email",
+            "password": "Password",
+            "submit": "Create account",
+            "has-account": "Already have an account?",
+            "go-to-sign-in": "Sign in",
+            "required": "This field is required.",
+            "tax-id-invalid": "The tax ID must have 11 digits.",
+            "email-invalid": "Enter a valid email, such as name{'@'}company.com.",
+            "password-short": "The password must have at least 8 characters.",
+            "errors": {
+                "tax-id-taken": "A company with that tax ID is already registered.",
+                "email-taken": "A user with that email already exists.",
+                "request-failed": "We could not create the account. Try again in a few minutes."
             }
         },
         "sign-out": "Sign out",
