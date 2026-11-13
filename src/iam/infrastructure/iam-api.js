@@ -15,7 +15,7 @@ export class IamApi extends BaseApi {
     }
 
     signIn(signInCommand) {
-        return this.http.post('/authentication/sign-in', { email: signInCommand.email, password: signInCommand.password });
+        return this.http.post('/tokens', { email: signInCommand.email, password: signInCommand.password });
     }
 
     getUsersByOrganization(organizationId) {
@@ -31,7 +31,11 @@ export class IamApi extends BaseApi {
     }
 
     assignRole(userId, role) {
-        return this.http.put(`${usersEndpointPath}/${userId}/role`, { role });
+        return this.http.post(`${usersEndpointPath}/${userId}/roles`, { role });
+    }
+
+    createOrganization(organizationResource) {
+        return this.#organizationsEndpoint.create(organizationResource);
     }
 
     getOrganizationById(organizationId) {

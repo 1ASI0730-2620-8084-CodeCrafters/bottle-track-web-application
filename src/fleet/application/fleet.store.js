@@ -1,16 +1,29 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
+import { currentOrganizationId, currentUserId } from '../../iam/application/iam.facade.js';
 import { FleetApi } from '../infrastructure/fleet-api.js';
 import { DriverAssembler, VehicleAssembler } from '../infrastructure/fleet.assemblers.js';
 
 const fleetApi = new FleetApi();
 
 const useFleetStore = defineStore('fleet', () => {
+    const organizationId = computed(() => currentOrganizationId());
+    const userId = computed(() => currentUserId());
     const vehicles = ref([]);
     const drivers = ref([]);
     const vehiclesLoaded = ref(false);
     const driversLoaded = ref(false);
     const isSaving = ref(false);
+    const showOnlyAvailableVehicles = ref(false);
+    const showOnlyAvailableDrivers = ref(false);
+
+    const visibleVehicles = computed(() => (showOnlyAvailableVehicles.value
+        ? vehicles.value.filter(item => item.isAvailable)
+        : vehicles.value));
+
+    const visibleDrivers = computed(() => (showOnlyAvailableDrivers.value
+        ? drivers.value.filter(item => item.isAvailable)
+        : drivers.value));
 
     async function runSaving(operation) {
         isSaving.value = true;
@@ -78,8 +91,14 @@ const useFleetStore = defineStore('fleet', () => {
     }
 
     return {
+        organizationId,
+        userId,
         vehicles,
         drivers,
+        showOnlyAvailableVehicles,
+        showOnlyAvailableDrivers,
+        visibleVehicles,
+        visibleDrivers,
         vehiclesLoaded,
         driversLoaded,
         isSaving,

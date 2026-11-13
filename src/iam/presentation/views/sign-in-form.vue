@@ -95,6 +95,10 @@ async function performSignIn() {
                     </div>
                     <pv-button type="submit" :label="t('iam.sign-in.submit')" :loading="store.isSigningIn" fluid/>
                 </form>
+                <p class="sign-in__sign-up">
+                    {{ t('iam.sign-in.no-account') }}
+                    <router-link :to="{ name: 'iam-sign-up' }">{{ t('iam.sign-in.create-account') }}</router-link>
+                </p>
                 <p class="sign-in__footer">
                     &copy; BottleTrack &middot; CodeCrafters &middot;
                     <a :href="TERMS_OF_SERVICE_URL" target="_blank" rel="noopener noreferrer">{{ t('iam.sign-in.terms') }}</a>
@@ -207,6 +211,13 @@ async function performSignIn() {
     text-align: center;
 }
 
+.sign-in__sign-up {
+    margin: 0;
+    font-size: var(--text-sm);
+    text-align: center;
+}
+
+.sign-in__sign-up a,
 .sign-in__footer a {
     color: var(--primary-mid);
 }

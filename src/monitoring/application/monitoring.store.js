@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
+import { currentOrganizationId, currentUserId } from '../../iam/application/iam.facade.js';
 import { MonitoringApi } from '../infrastructure/monitoring-api.js';
 import { MonitoringAssembler } from '../infrastructure/monitoring.assemblers.js';
 
@@ -10,6 +11,8 @@ function comingSoon() {
 }
 
 const useMonitoringStore = defineStore('monitoring', () => {
+    const organizationId = computed(() => currentOrganizationId());
+    const userId = computed(() => currentUserId());
     const monitoredOperations = ref([]);
     const alerts = ref([]);
     const monitoringLoaded = ref(false);
@@ -54,6 +57,8 @@ const useMonitoringStore = defineStore('monitoring', () => {
     }
 
     return {
+        organizationId,
+        userId,
         devices,
         devicesLoaded,
         fetchDevices,

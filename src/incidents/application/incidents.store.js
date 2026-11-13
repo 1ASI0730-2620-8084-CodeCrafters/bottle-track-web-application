@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
+import { currentOrganizationId, currentUserId } from '../../iam/application/iam.facade.js';
 import { IncidentsApi } from '../infrastructure/incidents-api.js';
 import { IncidentAssembler, EvidenceAssembler } from '../infrastructure/incident.assembler.js';
 
@@ -19,6 +20,8 @@ function stopsOf(operationResources) {
 }
 
 const useIncidentsStore = defineStore('incidents', () => {
+    const organizationId = computed(() => currentOrganizationId());
+    const userId = computed(() => currentUserId());
     const incidents = ref([]);
     const operations = ref([]);
     const stops = ref([]);
@@ -101,6 +104,8 @@ const useIncidentsStore = defineStore('incidents', () => {
     }
 
     return {
+        organizationId,
+        userId,
         incidents,
         operations,
         stops,

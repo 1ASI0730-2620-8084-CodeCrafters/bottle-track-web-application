@@ -61,6 +61,37 @@ const useIamStore = defineStore('iam', () => {
         }
     }
 
+    async function signUp(command) {
+        isSigningIn.value = true;
+        signInError.value = null;
+        try {
+            let organizationResponse;
+            try {
+                organizationResponse = await iamApi.createOrganization(OrganizationAssembler.toResourceFromSignUpCommand(command));
+            } catch (error) {
+                if (error.response && error.response.status === 409) return 'tax-id-taken';
+                return 'request-failed';
+            }
+            try {
+                await iamApi.createUser({
+                    organizationId: organizationResponse.data.id,
+                    firstName: command.firstName,
+                    lastName: command.lastName,
+                    email: command.email,
+                    password: command.password,
+                    role: 'administrator'
+                });
+            } catch (error) {
+                if (error.response && error.response.status === 409) return 'email-taken';
+                return 'request-failed';
+            }
+        } finally {
+            isSigningIn.value = false;
+        }
+        const isSignedIn = await signIn({ email: command.email, password: command.password });
+        return isSignedIn ? null : 'request-failed';
+    }
+
     function signOut() {
         currentUser.value = null;
         currentToken.value = null;
@@ -156,6 +187,7 @@ const useIamStore = defineStore('iam', () => {
         organization,
         isSaving,
         signIn,
+        signUp,
         signOut,
         canAccess,
         fetchUsers,

@@ -12,6 +12,16 @@ export class OrganizationAssembler {
         });
     }
 
+    static toResourceFromSignUpCommand(command) {
+        return {
+            businessName: command.businessName,
+            taxId: command.taxId,
+            email: command.companyEmail,
+            phone: command.phone,
+            address: command.address
+        };
+    }
+
     static toResourceFromUpdateCommand(command) {
         return {
             businessName: command.businessName,

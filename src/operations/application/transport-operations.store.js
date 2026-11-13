@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
+import { currentOrganizationId, currentUserId } from '../../iam/application/iam.facade.js';
 import { TransportOperationsApi } from '../infrastructure/transport-operations-api.js';
 import { TransportOperationAssembler } from '../infrastructure/transport-operation.assembler.js';
 
@@ -24,6 +25,8 @@ function stopsOf(operationResources) {
 }
 
 const useTransportOperationsStore = defineStore('transport-operations', () => {
+    const organizationId = computed(() => currentOrganizationId());
+    const userId = computed(() => currentUserId());
     const operations = ref([]);
     const operationsLoaded = ref(false);
     const currentOperation = ref(null);
@@ -132,6 +135,8 @@ const useTransportOperationsStore = defineStore('transport-operations', () => {
     }
 
     return {
+        organizationId,
+        userId,
         operations,
         operationsLoaded,
         currentOperation,
