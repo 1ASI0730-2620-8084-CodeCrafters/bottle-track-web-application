@@ -3,7 +3,6 @@ import { onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useToast } from 'primevue/usetoast';
 import useMonitoringStore from '../../application/monitoring.store.js';
-import useIamStore from '../../../iam/application/iam.store.js';
 import StatusBadge from '../../../shared/presentation/components/status-badge.vue';
 import SafeRangeDialog from '../components/safe-range-dialog.vue';
 import { isComingSoon, notifyComingSoon } from '../../../shared/presentation/coming-soon.js';
@@ -13,7 +12,6 @@ const STATUS_TONES = { active: 'success', offline: 'warning', retired: 'neutral'
 const { t } = useI18n();
 const toast = useToast();
 const store = useMonitoringStore();
-const iamStore = useIamStore();
 
 const loadFailed = ref(false);
 const isDialogVisible = ref(false);
@@ -39,7 +37,7 @@ async function saveRange(range) {
     });
 }
 
-onMounted(() => store.fetchDevices(iamStore.currentUser.organizationId).catch(() => {
+onMounted(() => store.fetchDevices(store.organizationId).catch(() => {
     loadFailed.value = true;
 }));
 </script>
