@@ -34,6 +34,10 @@ export class IamApi extends BaseApi {
         return this.http.post(`${usersEndpointPath}/${userId}/roles`, { role });
     }
 
+    createOrganization(organizationResource) {
+        return this.#organizationsEndpoint.create(organizationResource);
+    }
+
     getOrganizationById(organizationId) {
         return this.#organizationsEndpoint.getById(organizationId);
     }
