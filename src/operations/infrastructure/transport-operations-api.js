@@ -36,6 +36,34 @@ export class TransportOperationsApi extends BaseApi {
         return this.http.post(`${transportOperationsEndpointPath}/${operationId}/delivery-stops`, stopResource);
     }
 
+    moveStop(operationId, stopId, offset) {
+        return this.http.post(`${transportOperationsEndpointPath}/${operationId}/delivery-stops/${stopId}/moves`, { offset });
+    }
+
+    assignVehicle(operationId, vehicleId) {
+        return this.http.post(`${transportOperationsEndpointPath}/${operationId}/vehicle-assignments`, { vehicleId });
+    }
+
+    assignDriver(operationId, driverId) {
+        return this.http.post(`${transportOperationsEndpointPath}/${operationId}/driver-assignments`, { driverId });
+    }
+
+    startOperation(operationId) {
+        return this.http.post(`${transportOperationsEndpointPath}/${operationId}/starts`);
+    }
+
+    recordDelivery(operationId, stopId, deliveryResource) {
+        return this.http.post(`${transportOperationsEndpointPath}/${operationId}/delivery-stops/${stopId}/deliveries`, deliveryResource);
+    }
+
+    completeOperation(operationId) {
+        return this.http.post(`${transportOperationsEndpointPath}/${operationId}/completions`);
+    }
+
+    cancelOperation(operationId, reason) {
+        return this.http.post(`${transportOperationsEndpointPath}/${operationId}/cancellations`, { reason });
+    }
+
     getDeliveryPoints(organizationId) {
         return this.#deliveryPointsEndpoint.getAll({ organizationId });
     }

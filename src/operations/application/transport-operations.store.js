@@ -5,10 +5,17 @@ import { TransportOperationsApi } from '../infrastructure/transport-operations-a
 import { TransportOperationAssembler } from '../infrastructure/transport-operation.assembler.js';
 
 const AVAILABLE = 'available';
+const CONFLICT = 'conflict';
+const HTTP_CONFLICT = 409;
 const transportOperationsApi = new TransportOperationsApi();
 
-function comingSoon() {
-    return Promise.resolve('coming-soon');
+async function sendOrConflict(request) {
+    try {
+        return await request();
+    } catch (error) {
+        if (error.response && error.response.status === HTTP_CONFLICT) return CONFLICT;
+        throw error;
+    }
 }
 
 function stopsOf(operationResources) {
@@ -106,32 +113,71 @@ const useTransportOperationsStore = defineStore('transport-operations', () => {
         });
     }
 
-    function assignVehicle() {
-        return comingSoon();
+    function assignVehicle(operation, vehicleId) {
+        return runOnOperation(operation, async () => {
+            if (!operation.isPending) return 'operation-not-pending';
+            const response = await sendOrConflict(() => transportOperationsApi.assignVehicle(operation.id, vehicleId));
+            if (response === CONFLICT) return 'resource-not-available';
+            await fetchReferences(operation.organizationId);
+            return null;
+        });
     }
 
-    function assignDriver() {
-        return comingSoon();
+    function assignDriver(operation, driverId) {
+        return runOnOperation(operation, async () => {
+            if (!operation.isPending) return 'operation-not-pending';
+            const response = await sendOrConflict(() => transportOperationsApi.assignDriver(operation.id, driverId));
+            if (response === CONFLICT) return 'resource-not-available';
+            await fetchReferences(operation.organizationId);
+            return null;
+        });
     }
 
-    function startOperation() {
-        return comingSoon();
+    function startOperation(operation) {
+        return runOnOperation(operation, async () => {
+            if (!operation.canStart) return 'operation-cannot-start';
+            await transportOperationsApi.startOperation(operation.id);
+            return null;
+        });
     }
 
-    function recordDelivery() {
-        return comingSoon();
+    function recordDelivery(operation, command) {
+        return runOnOperation(operation, async () => {
+            if (!operation.isInProgress || !command.stop.isPending) return 'delivery-not-recordable';
+            await transportOperationsApi.recordDelivery(operation.id, command.stop.id, {
+                status: command.status,
+                deliveredQuantity: command.deliveredQuantity,
+                failureReason: command.failureReason
+            });
+            return null;
+        });
     }
 
-    function completeOperation() {
-        return comingSoon();
+    function completeOperation(operation) {
+        return runOnOperation(operation, async () => {
+            if (!operation.canComplete) return 'operation-has-pending-deliveries';
+            await transportOperationsApi.completeOperation(operation.id);
+            await fetchReferences(operation.organizationId);
+            return null;
+        });
     }
 
-    function cancelOperation() {
-        return comingSoon();
+    function cancelOperation(operation, reason) {
+        return runOnOperation(operation, async () => {
+            if (!operation.canCancel) return 'operation-already-started';
+            if (!reason || !reason.trim()) return 'cancellation-reason-required';
+            await transportOperationsApi.cancelOperation(operation.id, reason.trim());
+            await fetchReferences(operation.organizationId);
+            return null;
+        });
     }
 
-    function moveStop() {
-        return comingSoon();
+    function moveStop(operation, stop, offset) {
+        return runOnOperation(operation, async () => {
+            if (!operation.isPending) return 'operation-not-pending';
+            await transportOperationsApi.moveStop(operation.id, stop.id, offset);
+            return null;
+        });
     }
 
     return {
