@@ -3,6 +3,7 @@ import { BaseEndpoint } from '../../shared/infrastructure/base-endpoint.js';
 
 const vehiclesEndpointPath = import.meta.env.VITE_VEHICLES_ENDPOINT_PATH;
 const iotDevicesEndpointPath = import.meta.env.VITE_IOT_DEVICES_ENDPOINT_PATH;
+const alertsEndpointPath = import.meta.env.VITE_ALERTS_ENDPOINT_PATH;
 
 export class MonitoringApi extends BaseApi {
     #vehiclesEndpoint;
@@ -20,5 +21,9 @@ export class MonitoringApi extends BaseApi {
 
     getAllDevices() {
         return this.#devicesEndpoint.getAll();
+    }
+
+    acknowledgeAlert(alertId, acknowledgedBy) {
+        return this.http.post(`${alertsEndpointPath}/${alertId}/acknowledgments`, { acknowledgedBy });
     }
 }
