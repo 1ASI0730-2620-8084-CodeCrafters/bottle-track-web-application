@@ -7,7 +7,6 @@ import StatusBadge from '../../../shared/presentation/components/status-badge.vu
 import AddStopDialog from './add-stop-dialog.vue';
 import DeliveryResultDialog from './delivery-result-dialog.vue';
 import { DELIVERY_STATUS_TONES } from '../status-tones.js';
-import { isComingSoon } from '../../../shared/presentation/coming-soon.js';
 
 const props = defineProps({
     operation: { type: Object, required: true }
@@ -45,7 +44,7 @@ async function addStop(formValues) {
 
 async function recordResult(formValues) {
     const error = await store.recordDelivery(props.operation, new RecordDeliveryCommand({ stop: selectedStop.value, ...formValues }));
-    if (!error || isComingSoon(error)) isResultVisible.value = false;
+    if (!error) isResultVisible.value = false;
     emit('result', error, 'operations.route.result-recorded');
 }
 </script>
