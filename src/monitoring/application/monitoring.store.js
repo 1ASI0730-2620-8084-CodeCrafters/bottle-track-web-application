@@ -33,8 +33,16 @@ const useMonitoringStore = defineStore('monitoring', () => {
         return Promise.resolve({ alertTypes: [], error: 'coming-soon' });
     }
 
-    function acknowledgeAlert() {
-        return comingSoon();
+    async function acknowledgeAlert(alert, acknowledgedBy) {
+        if (alert.isAcknowledged) return 'alert-already-acknowledged';
+        try {
+            const { data } = await monitoringApi.acknowledgeAlert(alert.id, acknowledgedBy);
+            alert.acknowledgedBy = data.acknowledgedBy;
+            alert.acknowledgedAt = data.acknowledgedAt;
+            return null;
+        } catch (error) {
+            return 'alert-not-acknowledged';
+        }
     }
 
     async function fetchDevices(organizationId) {
